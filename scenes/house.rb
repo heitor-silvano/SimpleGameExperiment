@@ -3,5 +3,5 @@
 def house_scene(player)
   player_status(player)
 
-  puts "Ok. Está vazia."
+  render_player_frame(player, "Ok. Está vazia.")
 end

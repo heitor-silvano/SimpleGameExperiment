@@ -1,8 +1,8 @@
-def village_scene(player)
-  puts "Você chegou na vila. à esquerda tem uma passagem e à direita uma casa.\n"
+require_relative '../utils/render'
 
-  show_choices(["Ir para a passagem à esquerda", "Entrar na casa à direita"])
-  player_status(player)
+def village_scene(player)
+  text = "Você chegou na vila. à esquerda tem uma passagem e à direita uma casa.\n\n1. Ir para a passagem à esquerda\n2. Entrar na casa à direita"
+  render_player_frame(player, text)
 
   choice = gets.chomp.to_i
 

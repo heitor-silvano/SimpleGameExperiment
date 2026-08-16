@@ -5,7 +5,9 @@ def passage_scene(player)
 
   big_rat = Enemy.new(28, "Ratão furioso")
 
-  enemy_fight(big_rat)
+  clear_screen
+
+  render_fight_started(big_rat)
 
   show_fight_options(player.fight_options)
 
