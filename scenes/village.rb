@@ -2,7 +2,7 @@ require_relative '../utils/render'
 
 def village_scene(player)
   text = "Você chegou na vila. à esquerda tem uma passagem e à direita uma casa.\n\n1. Ir para a passagem à esquerda\n2. Entrar na casa à direita"
-  render_player_frame(player, text)
+  render_player_frame(player, text, false)
 
   choice = gets.chomp.to_i
 

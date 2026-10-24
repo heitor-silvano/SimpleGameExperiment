@@ -6,7 +6,7 @@ require_relative 'scenes/passage'
 require_relative 'utils/render'
 require "io/console"
 
-intro_scene
+player = create_player
 
 sleep 1
 
