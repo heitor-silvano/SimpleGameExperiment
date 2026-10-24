@@ -19,7 +19,7 @@ class PlayerJob
   end
 
   def life_by_job(job)
-    { "Guerreiro" => 150, "Mago" => 80, "Ladrão" => 90, "Arqueiro" => 100 } [job]
+    { "Guerreiro" => 50, "Mago" => 30, "Ladrão" => 35, "Arqueiro" => 40 } [job]
   end
 
   def fight_options_by_job(job)
