@@ -4,9 +4,21 @@ require_relative 'scenes/house'
 require_relative 'scenes/village'
 require_relative 'scenes/passage'
 require_relative 'utils/render'
+require_relative 'utils/save_file'
+require_relative 'constants/directory'
 require "io/console"
 
 player = create_player
+
+prompt_save_file
+
+answer = gets.chomp.downcase
+
+if answer == "s"
+  save_file(player)
+end
+
+
 
 sleep 1
 
@@ -18,6 +30,8 @@ loop do
   else puts("puts")
   end
 end
+
+
 
 player.life_quantity = 25
 

@@ -113,3 +113,8 @@ def enemy_fight(enemy)
   puts("ATENÇÃO")
   puts("Você encontrou #{enemy.title}!\n")
 end
+
+def prompt_save_file
+  puts "Deseja salvar o progresso?"
+  puts "S/N"
+end
