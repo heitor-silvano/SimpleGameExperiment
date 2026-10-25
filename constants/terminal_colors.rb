@@ -1,2 +1,6 @@
 ::GREEN_TEXT = "\e[1;32m"
 ::WHITE_TEXT = "\e[0;37m"
+::BLACK_TEXT = "\e[30m"
+::RESET_TEXT = "\e[39m"
+::GREEN_BACKGROUND = "\e[1;102m"
+::RESET_BACKGROUND = "\e[49m"

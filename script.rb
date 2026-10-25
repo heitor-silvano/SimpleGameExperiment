@@ -6,19 +6,17 @@ require_relative 'scenes/passage'
 require_relative 'utils/render'
 require_relative 'utils/save_file'
 require_relative 'constants/directory'
+require_relative 'utils/load_file'
 require "io/console"
+player = get_save_files_quantity > 0 ? load_player : create_player
 
-player = create_player
+#save_file(player)
 
-prompt_save_file
+#answer = gets.chomp.downcase
 
-answer = gets.chomp.downcase
-
-if answer == "s"
-  save_file(player)
-end
-
-
+#if answer == "s"
+#  save_file(player)
+#end
 
 sleep 1
 
