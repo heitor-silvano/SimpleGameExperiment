@@ -118,3 +118,46 @@ def prompt_save_file
   puts "Deseja salvar o progresso?"
   puts "S/N"
 end
+
+def render_select_file_menu_prompt(options, selected_option_index)
+  options.each_with_index do |filename, file_index|
+    puts file_index == selected_option_index ? GREEN_BACKGROUND + BLACK_TEXT + filename + RESET_BACKGROUND + RESET_TEXT : filename
+  end
+end
+def render_select_list(options, text)
+  index = 0
+  list_size = get_save_files_quantity
+
+  render_select_file_menu_prompt(options, 0)
+
+  reader = TTY::Reader.new
+
+  loop do
+    char = reader.read_keypress
+
+    case char
+    when "\e[A"
+      if index == 0
+        index = list_size
+      else
+        index > 0
+        index = index - 1
+      end
+    when "\e[B"
+      if index == list_size
+        index = 0
+      else
+        index < list_size
+        index = index + 1
+      end
+    when "\r"
+      return index
+    else
+      puts "else"
+    end
+
+    clear_screen
+    puts GREEN_TEXT + text + RESET_TEXT
+    render_select_file_menu_prompt(options, index)
+  end
+end

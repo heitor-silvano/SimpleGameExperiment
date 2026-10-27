@@ -1,4 +1,5 @@
 require_relative '../constants/terminal_colors'
+require_relative '../utils/render'
 
 def create_player
   render_typewriter_text(GREEN_TEXT + "Bem-vindo, amigo. Qual o seu nome?", 0.03)
@@ -21,7 +22,9 @@ def create_player
 
   job_list = %w[Guerreiro Mago Ladrão Arqueiro]
 
-  job = job_list[gets.chomp.to_i - 1]
+  selected_job_index = render_select_list(job_list, GREEN_TEXT + "Suas vestes são incomuns. Com o que você trabalha?" + WHITE_TEXT)
+
+  job = job_list[selected_job_index]
 
   player = PlayerJob.new(name, job)
 
