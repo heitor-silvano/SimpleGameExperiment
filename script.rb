@@ -57,9 +57,8 @@ def render_map(player_symbol, player_color, tile_symbol, row, col, max_rows, max
 
     screen_rows, screen_cols = STDOUT.winsize
 
-
-    center_cols = (screen_cols - max_cols)/2
-    center_rows = (screen_rows - max_rows)/2
+    center_cols = (screen_cols - max_cols) / 2
+    center_rows = (screen_rows - max_rows) / 2
 
     cont = 0
     while cont < center_rows
@@ -67,9 +66,17 @@ def render_map(player_symbol, player_color, tile_symbol, row, col, max_rows, max
       cont += 1
     end
 
+    print " " * (center_cols - 1)
+    print "╔"
+    print "═" * max_cols
+    print "╗"
+    puts
+
     cont = 0
     while cont < rows_till_player
-      print " " * center_cols
+      print " " * (center_cols - 1)
+
+      print "║"
       print tile_symbol * cols_till_player
 
       if cont == row - 1
@@ -79,23 +86,40 @@ def render_map(player_symbol, player_color, tile_symbol, row, col, max_rows, max
         print tile_symbol * (cols_after_player + 1)
       end
 
+      print "║"
+
       puts
       cont += 1
     end
 
     cont = 0
     while cont < rows_after_player
-      print " " * center_cols
+      print " " * (center_cols - 1)
+
+      print "║"
       print tile_symbol * max_cols
+      print "║"
 
       puts
 
       cont = cont + 1
     end
 
+    print " " * (center_cols - 1)
+    print "╚"
+    print "═" * max_cols
+    print "╝"
+    puts
+
   end
 end
 
-render_map("Ѭ", GREEN_TEXT, ".", 5, 15, 10, 30)
+system("xset r rate 500 40")
+
+begin
+  render_map("Ѭ", GREEN_TEXT, ".", 5, 15, 10, 30)
+ensure
+  system("xset r rate 500 33")
+end
 
 sleep 1
