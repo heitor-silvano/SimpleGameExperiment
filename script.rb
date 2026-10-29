@@ -8,6 +8,7 @@ require_relative 'utils/save_file'
 require_relative 'constants/directory'
 require_relative 'utils/load_file'
 require_relative 'constants/terminal_colors'
+require 'json'
 require "io/console"
 
 UP_KEY = "\e[A"
@@ -19,7 +20,7 @@ LEFT_KEY = "\e[D"
 
 # save_file(player)
 
-def render_map(player_symbol, player_color, tile_symbol, row, col, max_rows, max_cols)
+def render_map(player_symbol, player_color, floor_character, current_row, current_col, max_rows, max_cols)
   reader = TTY::Reader.new
 
   loop do
@@ -27,99 +28,120 @@ def render_map(player_symbol, player_color, tile_symbol, row, col, max_rows, max
 
     case char
     when UP_KEY
-      if row > 1
-        row = row - 1
+      if current_row > 0
+        current_row = current_row - 1
       end
     when DOWN_KEY
-      if row < max_rows
-        row = row + 1
+      if current_row < max_rows
+        current_row = current_row + 1
       end
     when RIGHT_KEY
-      if col < max_cols
-        col = col + 1
+      if current_col < max_cols
+        current_col = current_col + 1
       end
     when LEFT_KEY
-      if col > 1
-        col = col - 1
+      if current_col > 0
+        current_col = current_col - 1
       end
     else
       puts "else"
     end
 
-    print "\e[2J"
-    print "\e[H"
-
-    rows_after_player = max_rows - row
-    rows_till_player = max_rows - rows_after_player
-
-    cols_after_player = max_cols - col
-    cols_till_player = max_cols - cols_after_player - 1
+    print "\033c"
 
     screen_rows, screen_cols = STDOUT.winsize
 
-    center_cols = (screen_cols - max_cols) / 2
-    center_rows = (screen_rows - max_rows) / 2
+    col_left = (screen_cols - max_cols) / 2
+    row_top = (screen_rows - max_rows) / 2
 
-    cont = 0
-    while cont < center_rows
-      puts
-      cont += 1
-    end
+    col_right = col_left + max_cols
+    row_bottom = row_top + max_rows
 
-    print " " * (center_cols - 1)
-    print "╔"
-    print "═" * max_cols
-    print "╗"
-    puts
+    map_array = Array.new(screen_rows) { Array.new(screen_cols) }
 
-    cont = 0
-    while cont < rows_till_player
-      print " " * (center_cols - 1)
+    screen_rows.times do |row|
+      screen_cols.times do |col|
+        map_array[row][col] = " "
 
-      print "║"
-      print tile_symbol * cols_till_player
+        if col > col_left && col < col_right && row > row_top && row < row_bottom
+          map_array[row][col] = floor_character
+        end
 
-      if cont == row - 1
-        print player_color + player_symbol + RESET_TEXT
-        print tile_symbol * (cols_after_player)
-      else
-        print tile_symbol * (cols_after_player + 1)
+        if col > col_left && col < col_right && (row == row_top || row == row_bottom)
+          map_array[row][col] = "═"
+        end
+
+        if row > row_top && row < row_bottom && (col == col_left || col == col_right)
+          map_array[row][col] = "║"
+        end
+
+        if row == row_top && col == col_left
+          map_array[row][col] = "╔"
+        end
+
+        if row == row_top && col == col_right
+          map_array[row][col] = "╗"
+        end
+
+        if row == row_bottom && col == col_left
+          map_array[row][col] = "╚"
+        end
+
+        if row == row_bottom && col == col_right
+          map_array[row][col] = "╝"
+        end
       end
-
-      print "║"
-
-      puts
-      cont += 1
     end
 
-    cont = 0
-    while cont < rows_after_player
-      print " " * (center_cols - 1)
+    horizontal_wall_center_index = ((row_top + row_bottom) / 2)
+    map_array[horizontal_wall_center_index][col_right] = "R"
+    map_array[horizontal_wall_center_index][col_left] = "L"
 
-      print "║"
-      print tile_symbol * max_cols
-      print "║"
+    vertical_wall_center_index = ((col_left + col_right) / 2)
+    map_array[row_top][vertical_wall_center_index] = "T"
+    map_array[row_bottom][vertical_wall_center_index] = "B"
 
-      puts
-
-      cont = cont + 1
+    if map_array[row_top + current_row][col_left + current_col] == "L"
+      map_array[0][0] = "P"
     end
 
-    print " " * (center_cols - 1)
-    print "╚"
-    print "═" * max_cols
-    print "╝"
-    puts
+    map_array[row_top + current_row][col_left + current_col] = player_color + player_symbol + RESET_TEXT
+
+    puts map_array.map { |linha| linha.join("") }.join("\n")
 
   end
 end
 
-system("xset r rate 500 40")
+rooms = [
+  {
+    "node": "A",
+    "neighbours": [{ "node": "B", "node_at": "UP" }, { "node": "C", "node_at": "RIGHT" }],
+    "rows": 10,
+    "cols": 30,
+    "doors": ["UP", "RIGHT"],
+    "is_main_room": true
+  },
+  {
+    "node": "B",
+    "neighbours": [{ "node": "A", "node_at": "DOWN" }],
+    "rows": 10,
+    "cols": 30,
+    "doors": ["DOWN"],
+    "is_main_room": false
+  },
+  {
+    "node": "C",
+    "neighbours": [{ "node": "A", "node_at": "LEFT" }],
+    "rows": 10,
+    "cols": 30,
+    "doors": ["LEFT"],
+    "is_main_room": false
+  }
+]
 
 begin
-  render_map("Ѭ", GREEN_TEXT, ".", 5, 15, 10, 30)
-ensure
-  system("xset r rate 500 33")
+  render_map("Ѭ", GREEN_TEXT, ".", 1, 1, rooms[0][:rows], rooms[0][:cols])
+
 end
 
 sleep 1
