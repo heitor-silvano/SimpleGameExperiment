@@ -20,10 +20,15 @@ LEFT_KEY = "\e[D"
 
 # save_file(player)
 
-def render_map(player_symbol, player_color, floor_character, current_row, current_col, max_rows, max_cols)
+def render_map(player_symbol, player_color, floor_character, current_row, current_col, map_graph)
   reader = TTY::Reader.new
 
+  current_room = map_graph[0]
+
   loop do
+    max_rows = current_room[:rows]
+    max_cols = current_room[:cols]
+
     char = reader.read_keypress
 
     case char
@@ -94,15 +99,50 @@ def render_map(player_symbol, player_color, floor_character, current_row, curren
     end
 
     horizontal_wall_center_index = ((row_top + row_bottom) / 2)
-    map_array[horizontal_wall_center_index][col_right] = "R"
-    map_array[horizontal_wall_center_index][col_left] = "L"
+    if current_room[:neighbours].key?(:right)
+      map_array[horizontal_wall_center_index - 1][col_right] = "╚"
+      map_array[horizontal_wall_center_index][col_right] = "_"
+      map_array[horizontal_wall_center_index + 1][col_right] = "╔"
+    end
+
+    if current_room[:neighbours].key?(:left)
+      map_array[horizontal_wall_center_index - 1][col_left] = "╝"
+      map_array[horizontal_wall_center_index][col_left] = "_"
+      map_array[horizontal_wall_center_index + 1][col_left] = "╗"
+    end
 
     vertical_wall_center_index = ((col_left + col_right) / 2)
-    map_array[row_top][vertical_wall_center_index] = "T"
-    map_array[row_bottom][vertical_wall_center_index] = "B"
 
-    if map_array[row_top + current_row][col_left + current_col] == "L"
-      map_array[0][0] = "P"
+    if current_room[:neighbours].key?(:top)
+      map_array[row_top][vertical_wall_center_index - 1] = "╝"
+      map_array[row_top][vertical_wall_center_index] = "_"
+      map_array[row_top][vertical_wall_center_index + 1] = "╚"
+    end
+
+    if current_room[:neighbours].key?(:bottom)
+      map_array[row_bottom][vertical_wall_center_index - 1] = "╗"
+      map_array[row_bottom][vertical_wall_center_index] = "_"
+      map_array[row_bottom][vertical_wall_center_index + 1] = "╔"
+    end
+
+    if (row_top + current_row) == horizontal_wall_center_index && (col_left + current_col) == col_right
+      current_room = map_graph[map_graph.find_index { |map| map[:node] == current_room[:neighbours][:right] }]
+      current_col = (vertical_wall_center_index)
+    end
+
+    if (row_top + current_row) == horizontal_wall_center_index && (col_left + current_col) == col_left
+      current_room = map_graph[map_graph.find_index { |map| map[:node] == current_room[:neighbours][:left] }]
+      current_col = 5
+    end
+
+    if (row_top + current_row) == row_top && (col_left + current_col) == vertical_wall_center_index
+      current_room = map_graph[map_graph.find_index { |map| map[:node] == current_room[:neighbours][:top] }]
+      current_col = 5
+    end
+
+    if (row_top + current_row) == row_bottom && (col_left + current_col) == vertical_wall_center_index
+      current_room = map_graph[map_graph.find_index { |map| map[:node] == current_room[:neighbours][:bottom] }]
+      current_col = 5
     end
 
     map_array[row_top + current_row][col_left + current_col] = player_color + player_symbol + RESET_TEXT
@@ -115,32 +155,26 @@ end
 rooms = [
   {
     "node": "A",
-    "neighbours": [{ "node": "B", "node_at": "UP" }, { "node": "C", "node_at": "RIGHT" }],
+    "neighbours": { top: "B", right: "C" },
     "rows": 10,
     "cols": 30,
-    "doors": ["UP", "RIGHT"],
-    "is_main_room": true
   },
   {
     "node": "B",
-    "neighbours": [{ "node": "A", "node_at": "DOWN" }],
-    "rows": 10,
-    "cols": 30,
-    "doors": ["DOWN"],
-    "is_main_room": false
+    "neighbours": { bottom: "A" },
+    "rows": 15,
+    "cols": 20,
   },
   {
     "node": "C",
-    "neighbours": [{ "node": "A", "node_at": "LEFT" }],
+    "neighbours": { left: "A" },
     "rows": 10,
-    "cols": 30,
-    "doors": ["LEFT"],
-    "is_main_room": false
+    "cols": 55,
   }
 ]
 
 begin
-  render_map("Ѭ", GREEN_TEXT, ".", 1, 1, rooms[0][:rows], rooms[0][:cols])
+  render_map("Ѭ", GREEN_TEXT, ".", 1, 1, rooms)
 
 end
 
